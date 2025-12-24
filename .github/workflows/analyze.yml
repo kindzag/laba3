@@ -1,0 +1,75 @@
+name: Repository Analysis
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # Ручной запуск
+  schedule:
+    # Запуск каждый день в полночь
+    - cron: '0 0 * * *'
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write  # Разрешение на создание коммитов
+      
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Полная история
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Run repository analysis
+      run: |
+        python analyze_repo.py --output report.log --json
+    
+    - name: Create summary
+      run: |
+        echo "## 📊 Результаты анализа репозитория" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [ -f report.log ]; then
+          echo "Отчёт сгенерирован успешно!" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          head -20 report.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Отчёт не сгенерирован" >> $GITHUB_STEP_SUMMARY
+        fi
+    
+    - name: Commit and push report
+      run: |
+        # Настройка git
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        # Проверяем, есть ли изменения
+        git add report.log report.json
+        
+        # Проверяем статус
+        if ! git diff --cached --quiet; then
+          # Есть изменения - создаём коммит
+          git commit -m "📊 Auto-generated repository analysis report"
+          
+          # Пушим изменения
+          git push
+          echo "✅ Отчёт закоммичен и запушен"
+        else
+          echo "ℹ️ Изменений нет, коммит не требуется"
+        fi
+    
+    - name: Upload report as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: analysis-report
+        path: |
+          report.log
+          report.json

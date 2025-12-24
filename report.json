@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-12-24 23:22:30",
+  "total_size_bytes": 9705,
+  "total_size_human": "9.48 KB",
+  "file_count": 3,
+  "directory_count": 0,
+  "total_items": 3,
+  "files_by_extension": {
+    ".py": 1,
+    ".txt": 1,
+    ".md": 1
+  },
+  "largest_files": [
+    {
+      "path": "analyze_repo.py",
+      "size_bytes": 8138,
+      "size_human": "7.95 KB"
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 1567,
+      "size_human": "1.53 KB"
+    },
+    {
+      "path": "requiremenents.txt",
+      "size_bytes": 0,
+      "size_human": "0.00 B"
+    }
+  ],
+  "average_file_size": "3.16 KB"
+}
